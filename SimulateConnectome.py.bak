@@ -52,7 +52,7 @@ all_the_cell_names = ["ADAL","ADAR","ADEL","ADER","ADFL","ADFR","ADLL","ADLR","A
 # all_the_cell_names = ["AVM", "AVDL","AVDR", "AVAL","AVAR","AVBL","AVBR","ALML","ALMR","PLML","PLMR","PVCL","PVCR","PVDL","PVDR","DVA","LUAL","LUAR", "DB1","DB2","DB3","DB4","DB5","DB6","DB7","DD1","DD2","DD3","DD4","DD5","DD6","VB1","VB2","VB3","VB4","VB5","VB6","VB7","VB8","VB9", "VB10","VB11", "VD1", "VD2", "VD3", "VD4", "VD5", "VD6", "VD7", "VD8", "VD9", "VD10", "VD11", "VD12", "VD13", "DA1","DA2","DA3","DA4","DA5","DA6","DA7","DA8","DA9","VA1","VA2","VA3","VA4","VA5","VA6","VA7","VA8","VA9","VA10","VA11","VA12", "AS1","AS2","AS3","AS4","AS5","AS6","AS7","AS8","AS9","AS10","AS11"]
 
 l = len(all_the_cell_names)
-indices = list(range(l))
+indices = range(l)
 
 coords = [] # list of 3D coordinates of all the neurons
 cells_connections = {} # synaptic
@@ -144,7 +144,7 @@ def main():
     plt.show()
         
 def integrateODEs(ext_on):    
-    print("\nIntegrating ODEs...")
+    print "\nIntegrating ODEs..."
     
     # inputs to the simulation
     t  = np.linspace(start_time, end_time, num = 500, endpoint = True)
@@ -207,7 +207,7 @@ def deriv(vect,t, F_ext, V_eq, stim_dur, stim_start):
     return np.array(combined)
     
 def plotIVcurves():
-    print("\nCalculating IV curves...")
+    print "\nCalculating IV curves..."
     t  = np.linspace(0.0, 2.0, num = 2, endpoint = True)
     V_eq = findEquilibriumPotentials()
     stim_dur = 10
@@ -255,7 +255,7 @@ def findEquilibriumPotentials():
     return [float(k) for k in np.dot(AMatrix.I, bVector)] # convert to list
 
 def calculateJacobian(soln):
-    print("Calculating Jacobian...")
+    print "Calculating Jacobian..."
     # -45 mV reversal potential for GABA inhibitory synapses, 0 mV for excitatory
     reversal = [-45 * 0.001 if all_the_cell_names[i] in GABA_expressing else 0.0 for i in indices] 
     conn = GABA_Chol_Glut_adjacency
@@ -379,7 +379,7 @@ def plotConnectomeIn3D():
     plt.ylabel("y ($\mu$m)")
     
     # plot the synaptic connections in 3D
-    k = list(cells_connections.keys())
+    k = cells_connections.keys()
     for key in k:
         s = cells_connections[key][0]    
         end_coords_list = [cells_connections[p][0] for p in cells_connections[key][1:]]
@@ -400,7 +400,7 @@ def plotConnectomeIn3D():
                 ax.plot([s[0], e[0]], [s[1], e[1]], [s[2], e[2]], color='m', linestyle='dashed', linewidth = num/3)
             
     # plot the gap junctions in 3D
-    k = list(cells_gaps.keys())
+    k = cells_gaps.keys()
     for key in k:
         s = cells_gaps[key][0]
         end_coords_list = [cells_gaps[p][0] for p in cells_gaps[key][1:]]
@@ -546,11 +546,11 @@ def plotAdjacency():
        plt.scatter(xvals, yvals, s = sizes, c = 'k')
        
 def runSVD(soln):
-    print("SVD analysis...")
+    print "SVD analysis..."
     motor_neuron_indices = indices[18:] # the first 18 neurons are the sensory neurons and interneurons
     # Time-slices of motor neurons, starting halfway through the simulation to allow the initial transients to settle
     M = np.matrix([[k - np.mean(soln.T[i][len(soln.T[i])/2:]) for k in soln.T[i][len(soln.T[i])/2:]] for i in motor_neuron_indices]) 
-    print(M)
+    print M
     U, S, V = np.linalg.svd(M)
     fig = plt.figure()
     plt.xlabel("Mode number")
@@ -558,7 +558,7 @@ def runSVD(soln):
     plt.title("Singular values")
     plt.xlim(0, len(S)+1)
     plt.ylim(0,1)
-    plt.scatter(list(range(1,len(S)+1)),[p for p in S]/sum([q for q in S]), s=50)
+    plt.scatter(range(1,len(S)+1),[p for p in S]/sum([q for q in S]), s=50)
     
     # plot the dynamics of the modes
     firstmode_vec = U[:,0]/np.linalg.norm(U[:,0])
@@ -597,7 +597,7 @@ def runSVD(soln):
     plt.plot(a1, a2, linewidth = 1)
     
 def setupAnimation(soln):
-    print("Animation...")
+    print "Animation..."
     fig = plt.figure()
     ax = fig.gca(projection='3d')
     ax.set_xlim3d(-30,30)
@@ -613,7 +613,7 @@ def setupAnimation(soln):
     V_eq = findEquilibriumPotentials()
     color_data = np.array([[10*np.abs(s[p]) for p in range(numpoints)] for s in soln[:lastframe]]) 
     scat = ax.scatter([x[0] for x in coords], [x[1] for x in coords], [x[2] for x in coords], s = 85)
-    ani = animation.FuncAnimation(fig, update_plot, frames = list(range(len(soln[:lastframe,0]))), fargs = (color_data, scat), blit=False, interval = 1)
+    ani = animation.FuncAnimation(fig, update_plot, frames = range(len(soln[:lastframe,0])), fargs = (color_data, scat), blit=False, interval = 1)
 
     # save the animation to a file: need to install ffmpeg for this to work
     # on my Mac it worked to do "sudo port install ffmpeg" after installing MacPorts
